@@ -44,12 +44,6 @@ public class APCalendar {
      * firstDayOfYear(2019) returns 2 for Tuesday.
     */
     private static int firstDayOfYear(int year) {
-        // LocalDate date = LocalDate.of(year, 1, 1);
-        // DayOfWeek dayCalc = date.getDayOfWeek();
-        // if(dayCalc.getValue() == 7){
-        //     return 0;
-        // }
-        // return dayCalc.getValue();
         return dayOfWeek(1, 1, year);
     }
 
@@ -57,9 +51,13 @@ public class APCalendar {
      * Precondition: The date represented by month, day, year is a valid date.
     */
     public static int dayOfWeek(int month, int day, int year) { 
+        // https://docs.oracle.com/javase/8/docs/api/java/time/LocalDate.html
+            // LocalDate.of returns local date
         LocalDate date = LocalDate.of(year, month, day);
         DayOfWeek dayCalc = date.getDayOfWeek();
-        if(dayCalc.getValue() == 7){
+        // https://docs.oracle.com/javase/8/docs/api/java/time/DayOfWeek.html
+            // DayOfWeek enum: 1-7 to represent M-S
+        if(dayCalc.getValue() == 7){ // Change Sunday from 7 to 0
             return 0;
         }
         return dayCalc.getValue();
