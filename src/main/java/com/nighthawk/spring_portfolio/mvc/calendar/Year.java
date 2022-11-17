@@ -13,6 +13,8 @@ class Year {
    private int year2;
    private int leapYearCount;
 
+   private int month;
+   private int day;
    private int dayOfWeek;
 
    // zero argument constructor
@@ -40,6 +42,20 @@ class Year {
       this.setLeapYearCount(year1, year2);
    }
 
+   // day of week
+   public int getMonth(){
+      return month;
+   }
+   public int getDay(){
+      return day;
+   }
+   public void setTheDayOfWeek(int month, int day, int year){
+      this.month = month;
+      this.day = day;
+      this.year = year;
+      this.setDayOfWeek(month, day, year);
+   }
+
    /* isLeapYear getter/setters */
    public boolean getIsLeapYear(int year) {
       return APCalendar.isLeapYear(year);
@@ -56,14 +72,27 @@ class Year {
       this.leapYearCount = APCalendar.numberOfLeapYears(year1, year2);
    }
 
+   // day of week
+   public int getDayOfWeek(int month, int day, int year){
+      return APCalendar.dayOfWeek(month, day, year);
+   }
+   private void setDayOfWeek(int month, int day, int year){
+      this.dayOfWeek = APCalendar.dayOfWeek(month, day, year);
+   }
+
    /* isLeapYearToString formatted to be mapped to JSON */
    public String isLeapYearToString(){
-      return ( "{ \"year\": "  +this.year+  ", " + "\"isLeapYear\": "  +this.isLeapYear+ " }" );
+      return ( "{ \"year\": " + this.year + ", " + "\"isLeapYear\": " + this.isLeapYear + " }" );
    }	
 
    // leap year range
    public String leapYearCountToString(){
-      return ( "{ \"year\": "  +this.year1+this.year2+  ", " + "\"isLeapYear\": "  +this.leapYearCount+ " }" );
+      return ( "{ \"year\": "  + this.year1 + this.year2 +  ", " + "\"isLeapYear\": "  + this.leapYearCount + " }" );
+   }
+
+   // day of week
+   public String dayOfWeekToString(){
+      return ( "{ \"Date\": "  + this.month + this.day +  this.year + ", " + "\"dayOfWeek\": "  + this.dayOfWeek + " }" );
    }
 
    /* standard toString placeholder until class is extended */
