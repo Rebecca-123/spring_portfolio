@@ -80,6 +80,7 @@ public class APCalendar {
         System.out.println("firstDayOfYear - January 1st, 2022: " + APCalendar.firstDayOfYear(2022));
         System.out.println("dayOfYear: " + APCalendar.dayOfYear(1, 1, 2022));
         System.out.println("dayOfWeek: " + APCalendar.dayOfWeek(1, 1, 2022));
+        System.out.println("dayOfWeek: " + APCalendar.dayOfWeek(1, 2, 2022));
 
         // Public access modifiers
         System.out.println("isLeapYear for 2022: " + APCalendar.isLeapYear(2022));
