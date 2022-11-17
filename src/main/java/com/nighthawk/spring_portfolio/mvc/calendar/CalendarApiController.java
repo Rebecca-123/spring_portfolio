@@ -44,7 +44,7 @@ public class CalendarApiController {
       * Returns: {"year":16001699,"isLeapYear":25}
       */
     @GetMapping("/leapYearCount/{year1}/{year2}")
-    public ResponseEntity<JsonNode> getLeapYearCount2(@PathVariable int year1, @PathVariable int year2) throws JsonMappingException, JsonProcessingException {
+    public ResponseEntity<JsonNode> getLeapYearCount(@PathVariable int year1, @PathVariable int year2) throws JsonMappingException, JsonProcessingException {
       Year year_obj = new Year();
       year_obj.setYears(year1, year2);
       ObjectMapper mapper = new ObjectMapper(); 
