@@ -54,6 +54,7 @@ class Year {
       this.day = day;
       this.year = year;
       this.setDayOfWeek(month, day, year);
+      this.setYear(year);
    }
 
    /* isLeapYear getter/setters */
@@ -93,6 +94,10 @@ class Year {
    // day of week
    public String dayOfWeekToString(){
       return ( "{ \"Date\": "  + this.month + this.day +  this.year + ", " + "\"dayOfWeek\": "  + this.dayOfWeek + " }" );
+   }
+
+   public String randomToString(){
+      return ("{ \"year\": " + this.year + ", " + "\"isLeapYear\": " + this.isLeapYear + ", " + "\"Date\": "  + this.month + this.day +  this.year + ", " + " \"dayOfWeek\": "  + this.dayOfWeek + " }");
    }
 
    /* standard toString placeholder until class is extended */

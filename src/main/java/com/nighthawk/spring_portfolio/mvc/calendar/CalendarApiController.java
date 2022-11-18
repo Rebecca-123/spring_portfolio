@@ -64,4 +64,31 @@ public class CalendarApiController {
       JsonNode json = mapper.readTree(year_obj.dayOfWeekToString());
       return ResponseEntity.ok(json);
     }
+
+    /** Endpoint
+      * /api/calendar/random
+      * Returns: {"Date":11162022,"dayOfWeek":3}
+      */
+      @GetMapping("/random")
+      public ResponseEntity<JsonNode> getRandomDayOfWeek() throws JsonMappingException, JsonProcessingException {
+        Year year_obj = new Year();
+      
+        int month;
+        int day;
+        int year;
+
+        month = (int)(Math.random()*12 + 1); // generate random month and cast to int
+          // between 1 and 12 inclusive
+        
+        day = (int)(Math.random()*28 + 1); // generate random day, limit to 28 to match all realistic scenarios
+          // betweeen 1 and 28 inclusive
+
+        year = (int)(Math.random()*1000 + 1900);
+          // between 1900 and 2899
+
+        year_obj.setTheDayOfWeek(month, day, year);  // evaluates day of week
+        ObjectMapper mapper = new ObjectMapper(); 
+        JsonNode json = mapper.readTree(year_obj.randomToString());
+        return ResponseEntity.ok(json);
+      }
 }
