@@ -19,10 +19,12 @@ public class Calendar {
     public String calendar(@RequestParam(name="year", required=false, defaultValue="2022") int year, Model model) {
 
         boolean isLeapYear = APCalendar.isLeapYear(year);
+        int dayOfWeek = APCalendar.dayOfWeek(1, 1, year);
 
         // model attributes are visible to Thymeleaf when HTML is "pre-processed"
         model.addAttribute("year", year);
         model.addAttribute("isLeapYear", isLeapYear);
+        model.addAttribute("dayOfWeek", dayOfWeek);
 
         // load HTML VIEW (calendar.html)
         return "calendar"; 
