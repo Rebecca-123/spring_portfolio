@@ -87,6 +87,7 @@ public class CalendarApiController {
           // between 1900 and 2899
 
         year_obj.setTheDayOfWeek(month, day, year);  // evaluates day of week
+        // year_obj.setStringDayOfWeek(year_obj.dayOfWeek);
         ObjectMapper mapper = new ObjectMapper(); 
         JsonNode json = mapper.readTree(year_obj.randomToString());
         return ResponseEntity.ok(json);

@@ -17,6 +17,8 @@ class Year {
    private int day;
    private int dayOfWeek;
 
+   private String stringDayOfWeek;
+
    // zero argument constructor
    public Year() {} 
 
@@ -55,6 +57,11 @@ class Year {
       this.year = year;
       this.setDayOfWeek(month, day, year);
       this.setYear(year);
+   }
+
+   public void setStringDayOfWeek(int dayOfWeek){
+      String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+      this.stringDayOfWeek = days[dayOfWeek];
    }
 
    /* isLeapYear getter/setters */
