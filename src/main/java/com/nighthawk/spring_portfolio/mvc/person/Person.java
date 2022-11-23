@@ -94,4 +94,22 @@ public class Person {
         return -1;
     }
 
+    // Display class attributes
+    public String personToString(){
+        return String.format("{\"id\": %s, \"email\": %s, \"password\": %s, \"name\": %s, \"dob\": %s, \"stats\": %s}", this.id, this.email, this.password, this.name, this.dob, this.stats);
+    }
+
+    // Tester method
+    public static void main(String[] args) {
+        // no-arg
+        Person p1 = new Person();
+        System.out.println(p1.personToString());
+
+        // all-arg: id, email, password, name, dob, stats
+        Date dob = new Date();
+        Map<String,Map<String, Object>> stats = new HashMap<>();
+        Person p2 = new Person(1l, "person@gmail.com", "12345", "Person", dob, stats);
+        System.out.println(p2.personToString());
+    }
+
 }
