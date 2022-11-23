@@ -94,6 +94,14 @@ public class Person {
         return -1;
     }
 
+    public void addStats(String newDate, Map<String, Object> attributeMap){
+        this.stats.put(newDate, attributeMap);
+    }
+
+    public void deleteStats(String oldDate){
+        this.stats.remove(oldDate);
+    }
+
     // Display class attributes
     public String personToString(){
         return String.format("{\"id\": %s, \"email\": %s, \"password\": %s, \"name\": %s, \"dob\": %s, \"stats\": %s}", this.id, this.email, this.password, this.name, this.dob, this.stats);
@@ -108,8 +116,12 @@ public class Person {
         // all-arg: id, email, password, name, dob, stats
         Date dob = new Date();
         Map<String,Map<String, Object>> stats = new HashMap<>();
+        // stats.put("2000-01-01", null);
+       
         Person p2 = new Person(1l, "person@gmail.com", "12345", "Person", dob, stats);
         System.out.println(p2.personToString());
+
+        // System.out.println(p2.getStats().get("date"));
     }
 
 }

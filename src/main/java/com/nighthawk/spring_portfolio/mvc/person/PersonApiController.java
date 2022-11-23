@@ -107,15 +107,24 @@ public class PersonApiController {
             // Extract Attributes from JSON
             Map<String, Object> attributeMap = new HashMap<>();
             for (Map.Entry<String,Object> entry : stat_map.entrySet())  {
-                // Add all attribute other thaN "date" to the "attribute_map"
+                // Add all attribute other than "date" to the "attribute_map"
                 if (!entry.getKey().equals("date") && !entry.getKey().equals("id"))
                     attributeMap.put(entry.getKey(), entry.getValue());
             }
 
             // Set Date and Attributes to SQL HashMap
             Map<String, Map<String, Object>> date_map = new HashMap<>();
-            date_map.put( (String) stat_map.get("date"), attributeMap );
-            person.setStats(date_map);  // BUG, needs to be customized to replace if existing or append if new
+            String newDate = (String) stat_map.get("date");
+            date_map.put(newDate, attributeMap);
+            if(!(person.getStats().get(newDate) == null)){
+                // replace if existing
+                person.deleteStats(newDate);
+                person.addStats(newDate, attributeMap);
+            }
+            else{ // no info for date yet
+                // append if new
+                person.addStats(newDate, attributeMap);
+            }
             repository.save(person);  // conclude by writing the stats updates
 
             // return Person with update Stats
