@@ -7,6 +7,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -77,13 +88,15 @@ public class Person {
     @Column(columnDefinition = "jsonb")
     private Map<String,Map<String, Object>> stats = new HashMap<>(); 
     
+    private int height;
 
     // Constructor used when building object from an API
-    public Person(String email, String password, String name, Date dob) {
+    public Person(String email, String password, String name, Date dob, int height) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.dob = dob;
+        this.height = height;
     }
 
     // A custom getter to return age from dob attribute
@@ -102,9 +115,65 @@ public class Person {
         this.stats.remove(oldDate);
     }
 
+    private JSONObject body; // last run result
+    private HttpStatus status; // last run status
+    public Object calcBMI(Object weight){
+        String url = "https://body-mass-index-bmi-calculator.p.rapidapi.com/imperial?weight=" + weight + "&height=" + this.height;
+        try{
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+             // JSONParser extracts text body and parses to JSONObject
+             this.body = (JSONObject) new JSONParser().parse(response.body());
+             this.status = HttpStatus.OK;  //200 success
+        }
+        catch(Exception e) {  // capture failure info
+            HashMap<String, String> status = new HashMap<>();
+                status.put("status", "RapidApi failure: " + e);
+
+                //Setup object for error
+                this.body = (JSONObject) status;
+                this.status = HttpStatus.INTERNAL_SERVER_ERROR; //500 error
+        }
+        return this.body.get("bmi");
+    }
+
+    private JSONObject body2; // last run result
+    private HttpStatus status2; // last run status
+    public Object bmiClassification(Object bmi){
+        String url = "https://body-mass-index-bmi-calculator.p.rapidapi.com/weight-category?bmi=" + bmi;
+        try{
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+             // JSONParser extracts text body and parses to JSONObject
+             this.body2 = (JSONObject) new JSONParser().parse(response.body());
+             this.status2 = HttpStatus.OK;  //200 success
+        }
+        catch(Exception e) {  // capture failure info
+            HashMap<String, String> status2 = new HashMap<>();
+            status2.put("status", "RapidApi failure: " + e);
+
+            // Setup object for error
+            this.body2 = (JSONObject) status2;
+            this.status2 = HttpStatus.INTERNAL_SERVER_ERROR; // 500 error
+        }
+        return this.body2.get("weightCategory");
+    }
+
     // Display class attributes
     public String personToString(){
-        return String.format("{\"id\": %s, \"email\": %s, \"password\": %s, \"name\": %s, \"dob\": %s, \"stats\": %s}", this.id, this.email, this.password, this.name, this.dob, this.stats);
+        return String.format("{\"id\": %s, \"email\": %s, \"password\": %s, \"name\": %s, \"dob\": %s, \"stats\": %s, \"height\": %s}", this.id, this.email, this.password, this.name, this.dob, this.stats, this.height);
     }
 
     // Tester method
@@ -118,7 +187,7 @@ public class Person {
         Map<String,Map<String, Object>> stats = new HashMap<>();
         // stats.put("2000-01-01", null);
        
-        Person p2 = new Person(1l, "person@gmail.com", "12345", "Person", dob, stats);
+        Person p2 = new Person(1l, "person@gmail.com", "12345", "Person", dob, stats, 60);
         System.out.println(p2.personToString());
 
         // System.out.println(p2.getStats().get("date"));

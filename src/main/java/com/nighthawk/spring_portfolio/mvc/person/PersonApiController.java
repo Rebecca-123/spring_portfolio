@@ -6,6 +6,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import java.util.*;
 import java.text.SimpleDateFormat;
 
@@ -43,6 +54,74 @@ public class PersonApiController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);       
     }
 
+     /*
+    * BMI Classification API
+    * Endpoint parameter: BMI
+     */
+    private JSONObject body2; // last run result
+    private HttpStatus status2; // last run status
+    @GetMapping("/bmi/classification/{bmi}") // added to end of prefix as endpoint
+    public ResponseEntity<JSONObject> getBMIClassification(@PathVariable int bmi) 
+        throws JsonMappingException, JsonProcessingException {
+        String url = "https://body-mass-index-bmi-calculator.p.rapidapi.com/weight-category?bmi=" + bmi;
+        try{
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+             // JSONParser extracts text body and parses to JSONObject
+             this.body2 = (JSONObject) new JSONParser().parse(response.body());
+             this.status2 = HttpStatus.OK;  //200 success
+        }
+        catch(Exception e) {  // capture failure info
+            HashMap<String, String> status2 = new HashMap<>();
+            status2.put("status", "RapidApi failure: " + e);
+
+            // Setup object for error
+            this.body2 = (JSONObject) status2;
+            this.status2 = HttpStatus.INTERNAL_SERVER_ERROR; // 500 error
+        }
+        return new ResponseEntity<>(body2, status2);
+    }
+
+    /*
+    * BMI API
+    * Height and weight in endpoint parameters
+     */
+    private JSONObject body; // last run result
+    private HttpStatus status; // last run status
+    @GetMapping("/bmi/{height}/{weight}") // added to end of prefix as endpoint
+    public ResponseEntity<JSONObject> getBMI(@PathVariable int height, @PathVariable int weight) 
+        throws JsonMappingException, JsonProcessingException {
+        String url = "https://body-mass-index-bmi-calculator.p.rapidapi.com/imperial?weight=" + weight + "&height=" + height;
+        try{
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+             // JSONParser extracts text body and parses to JSONObject
+             this.body = (JSONObject) new JSONParser().parse(response.body());
+             this.status = HttpStatus.OK;  // 200 success
+        }
+        catch(Exception e) {  // capture failure info
+            HashMap<String, String> status = new HashMap<>();
+            status.put("status", "RapidApi failure: " + e);
+
+            // Setup object for error
+            this.body = (JSONObject) status;
+            this.status = HttpStatus.INTERNAL_SERVER_ERROR; // 500 error
+        }
+        return new ResponseEntity<>(body, status);
+    }
+
     /*
     DELETE individual Person using ID
      */
@@ -65,7 +144,8 @@ public class PersonApiController {
     public ResponseEntity<Object> postPerson(@RequestParam("email") String email,
                                              @RequestParam("password") String password,
                                              @RequestParam("name") String name,
-                                             @RequestParam("dob") String dobString) {
+                                             @RequestParam("dob") String dobString,
+                                             @RequestParam("height") int height) {
         Date dob;
         try {
             dob = new SimpleDateFormat("MM-dd-yyyy").parse(dobString);
@@ -73,7 +153,7 @@ public class PersonApiController {
             return new ResponseEntity<>(dobString +" error; try MM-dd-yyyy", HttpStatus.BAD_REQUEST);
         }
         // A person object WITHOUT ID will create a new record with default roles as student
-        Person person = new Person(email, password, name, dob);
+        Person person = new Person(email, password, name, dob, height);
         repository.save(person);
         return new ResponseEntity<>(email +" is created successfully", HttpStatus.CREATED);
     }
@@ -110,6 +190,10 @@ public class PersonApiController {
                 // Add all attribute other than "date" to the "attribute_map"
                 if (!entry.getKey().equals("date") && !entry.getKey().equals("id"))
                     attributeMap.put(entry.getKey(), entry.getValue());
+                // Add BMI info if weight is provided    
+                if (entry.getKey().equals("weight"))
+                    attributeMap.put("bmi", person.calcBMI(entry.getValue())); // BMI (number)
+                    attributeMap.put("weightCategory", person.bmiClassification(person.calcBMI(entry.getValue())));  // weight classification based on BMI
             }
 
             // Set Date and Attributes to SQL HashMap
@@ -134,5 +218,4 @@ public class PersonApiController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); 
         
     }
-
 }
