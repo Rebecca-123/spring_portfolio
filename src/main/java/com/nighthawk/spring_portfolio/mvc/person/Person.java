@@ -1,4 +1,5 @@
 package com.nighthawk.spring_portfolio.mvc.person;
+import com.nighthawk.spring_portfolio.mvc.person.StepTracker;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -15,8 +16,6 @@ import java.net.http.HttpResponse;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -88,15 +87,20 @@ public class Person {
     @Column(columnDefinition = "jsonb")
     private Map<String,Map<String, Object>> stats = new HashMap<>(); 
     
+    // inches
     private int height;
 
+    // Step Tracker
+    public int minSteps;
+
     // Constructor used when building object from an API
-    public Person(String email, String password, String name, Date dob, int height) {
+    public Person(String email, String password, String name, Date dob, int height, int minSteps) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.dob = dob;
         this.height = height;
+        this.minSteps = minSteps;
     }
 
     // A custom getter to return age from dob attribute
@@ -122,7 +126,7 @@ public class Person {
         try{
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Key", "bdd7c1e507msh4b0a5adae74c68cp127439jsn94bd137c3d62")
                 .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
@@ -150,7 +154,7 @@ public class Person {
         try{
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Key", "bdd7c1e507msh4b0a5adae74c68cp127439jsn94bd137c3d62")
                 .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
@@ -182,15 +186,26 @@ public class Person {
         Person p1 = new Person();
         System.out.println(p1.personToString());
 
+        // default time zone
+	    ZoneId defaultZoneId = ZoneId.systemDefault();
+
         // all-arg: id, email, password, name, dob, stats
-        Date dob = new Date();
+        LocalDate dob = LocalDate.of(2000, 1, 1);
+        // convert LocalDate to Date object
+        Date date = Date.from(dob.atStartOfDay(defaultZoneId).toInstant());
+
         Map<String,Map<String, Object>> stats = new HashMap<>();
         // stats.put("2000-01-01", null);
        
-        Person p2 = new Person(1l, "person@gmail.com", "12345", "Person", dob, stats, 60);
+        JSONObject b1 = new JSONObject();
+        JSONObject b2 = new JSONObject();
+        HttpStatus h1 = null;
+        HttpStatus h2 = null;
+
+        Person p2 = new Person(1l, "person@gmail.com", "12345", "Person", date, stats, 60, 0, b1, h1, b2, h2);
         System.out.println(p2.personToString());
 
-        // System.out.println(p2.getStats().get("date"));
+        System.out.println(p2.getStats().get("date"));
     }
 
 }

@@ -1,4 +1,5 @@
 package com.nighthawk.spring_portfolio.mvc.person;
+import com.nighthawk.spring_portfolio.mvc.person.StepTracker;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -67,7 +68,7 @@ public class PersonApiController {
         try{
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Key", "bdd7c1e507msh4b0a5adae74c68cp127439jsn94bd137c3d62")
                 .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
@@ -101,7 +102,7 @@ public class PersonApiController {
         try{
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("X-RapidAPI-Key", "199e385baamshc0a4c645191a179p191ebdjsn70f0155c5394")
+                .header("X-RapidAPI-Key", "bdd7c1e507msh4b0a5adae74c68cp127439jsn94bd137c3d62")
                 .header("X-RapidAPI-Host", "body-mass-index-bmi-calculator.p.rapidapi.com")
                 .method("GET", HttpRequest.BodyPublishers.noBody())
                 .build();
@@ -145,7 +146,8 @@ public class PersonApiController {
                                              @RequestParam("password") String password,
                                              @RequestParam("name") String name,
                                              @RequestParam("dob") String dobString,
-                                             @RequestParam("height") int height) {
+                                             @RequestParam("height") int height,
+                                             @RequestParam("minSteps") int minSteps) {
         Date dob;
         try {
             dob = new SimpleDateFormat("MM-dd-yyyy").parse(dobString);
@@ -153,7 +155,7 @@ public class PersonApiController {
             return new ResponseEntity<>(dobString +" error; try MM-dd-yyyy", HttpStatus.BAD_REQUEST);
         }
         // A person object WITHOUT ID will create a new record with default roles as student
-        Person person = new Person(email, password, name, dob, height);
+        Person person = new Person(email, password, name, dob, height, minSteps);
         repository.save(person);
         return new ResponseEntity<>(email +" is created successfully", HttpStatus.CREATED);
     }
@@ -188,12 +190,22 @@ public class PersonApiController {
             Map<String, Object> attributeMap = new HashMap<>();
             for (Map.Entry<String,Object> entry : stat_map.entrySet())  {
                 // Add all attribute other than "date" to the "attribute_map"
-                if (!entry.getKey().equals("date") && !entry.getKey().equals("id"))
+                if (!entry.getKey().equals("date") && !entry.getKey().equals("id")){
                     attributeMap.put(entry.getKey(), entry.getValue());
-                // Add BMI info if weight is provided    
-                if (entry.getKey().equals("weight"))
+                }    
+
+                if (entry.getKey().equals("steps")){
+                    int steps = (int) entry.getValue();
+                    StepTracker myStepTracker = new StepTracker(person.minSteps);
+                    attributeMap.put("Active?", myStepTracker.isActive(steps));
+                }    
+                
+                // Add BMI info if weight is provided
+                // weight expected in pounds    
+                if (entry.getKey().equals("weight")){
                     attributeMap.put("bmi", person.calcBMI(entry.getValue())); // BMI (number)
                     attributeMap.put("weightCategory", person.bmiClassification(person.calcBMI(entry.getValue())));  // weight classification based on BMI
+                }
             }
 
             // Set Date and Attributes to SQL HashMap
