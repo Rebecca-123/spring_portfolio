@@ -1,5 +1,4 @@
 package com.nighthawk.spring_portfolio.mvc.person;
-import com.nighthawk.spring_portfolio.mvc.person.StepTracker;
 
 import java.time.LocalDate;
 import java.time.Period;

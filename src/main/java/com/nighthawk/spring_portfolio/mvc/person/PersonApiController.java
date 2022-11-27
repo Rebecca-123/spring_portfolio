@@ -1,5 +1,4 @@
 package com.nighthawk.spring_portfolio.mvc.person;
-import com.nighthawk.spring_portfolio.mvc.person.StepTracker;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
