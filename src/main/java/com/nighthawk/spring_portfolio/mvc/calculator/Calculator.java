@@ -123,11 +123,15 @@ public class Calculator {
                     tokenStack.push(token);
                     break;
                 case ")":
-                    while (tokenStack.peek() != null && !tokenStack.peek().equals("("))
-                    {
-                        reverse_polish.add(tokenStack.pop());
+                    try{
+                        while (tokenStack.peek() != null && !tokenStack.peek().equals("("))
+                        {
+                            reverse_polish.add(tokenStack.pop());
+                        }
+                        tokenStack.pop();
                     }
-                    tokenStack.pop();
+                    catch(Exception e){   
+                    }
                     break;
                 case "+":
                 case "-":
@@ -177,33 +181,37 @@ public class Calculator {
             // If the token is an operator, calculate
             if (isOperator(token))
             {
-                // Pop the two top entries
-                Double num1 = calcStack.pop();
-                Double num2 = calcStack.pop();
+                try{
+                    // Pop the two top entries
+                    Double num1 = calcStack.pop();
+                    Double num2 = calcStack.pop();
 
-                // Calculate intermediate results
-                switch(token){
-                    case "+":
-                        result = num1 + num2;
-                        break;
-                    case "-":
-                        result = num2 - num1;
-                        break;
-                    case "*":
-                        result = num1 * num2;
-                        break;
-                    case "/":
-                        result = num2 / num1;
-                        break;
-                    case "%":
-                        result = num2 % num1;
-                        break;
-                    case "^":
-                        result = Math.pow(num2, num1);  
-                        break;
-                    default:
-                        result = 0.0;
+                    // Calculate intermediate results
+                    switch(token){
+                        case "+":
+                            result = num1 + num2;
+                            break;
+                        case "-":
+                            result = num2 - num1;
+                            break;
+                        case "*":
+                            result = num1 * num2;
+                            break;
+                        case "/":
+                            result = num2 / num1;
+                            break;
+                        case "%":
+                            result = num2 % num1;
+                            break;
+                        case "^":
+                            result = Math.pow(num2, num1);  
+                            break;
+                        default:
+                            result = 0.0;
+                    }           
                 }
+                catch(Exception e){   
+                } 
                 // Push intermediate result back onto the stack
                 calcStack.push(result);
             }
@@ -219,12 +227,41 @@ public class Calculator {
 
     // Print the expression, terms, and result
     public String toString() {
-        return ("Original expression: " + this.expression + "\n" +
-                "Tokenized expression: " + this.tokens.toString() + "\n" +
-                "Reverse Polish Notation: " +this.reverse_polish.toString() + "\n" +
-                "Final result: " + String.format("%.2f", this.result));
+        // check for balanced parentheses
+        Delimiters test = new Delimiters("(", ")");
+        System.out.println("Parenthesis Delimiters: " + test.getDelimitersList(this.tokens));
+        if(test.isBalanced(test.getDelimitersList(this.tokens))){
+            if(this.error.trim().length() > 0){
+                return("Original expression: " + this.expression + ", Error: Unexpected characters");
+            }
+            else{              
+                return ("Original expression: " + this.expression + "\n" +
+                    "Tokenized expression: " + this.tokens.toString() + "\n" +
+                    "Reverse Polish Notation: " +this.reverse_polish.toString() + "\n" +
+                    "Final result: " + String.format("%.2f", this.result));
+            }    
+        }
+        else{
+            return("Original expression: " + this.expression + ", Error: parentheses are unbalanced.");
+        }
     }
 
+    public String apiToString(){
+        // check for balanced parentheses
+        Delimiters test = new Delimiters("(", ")");
+        if(test.isBalanced(test.getDelimitersList(this.tokens))){
+            if(this.error.trim().length() > 0){
+                return("{\"Error\": \"Unexpected characters\"}");
+            }
+            else{              
+                return("{\"Result\": " + String.format("%.2f", this.result) + "}");
+            }    
+        }
+        else{
+            return("{\"Error\": " + "\"Unbalanced parentheses\"}");
+        }
+    }
+    
     // Tester method
     public static void main(String[] args) {
         // Random set of test cases
@@ -255,6 +292,16 @@ public class Calculator {
 
         Calculator exponentMath = new Calculator("(5 + 3) ^ 2");
         System.out.println("Exponent Math\n" + exponentMath);
+
+        System.out.println();
+
+        Calculator unbalanced = new Calculator("(5 + 3) ^ 2)");
+        System.out.println("Unbalanced Parentheses\n" + unbalanced);
+
+        System.out.println();
+
+        Calculator unexpectedChar = new Calculator("2a + 4");
+        System.out.println("Unexpected Characters\n" + unexpectedChar);
 
     }
 }
