@@ -11,7 +11,8 @@ public class Delimiters {
         this.closeDel = closeDel;
     }
 
-    public ArrayList<String> getDelimitersList(String[] tokens){
+    // type of input switched from array to ArrayList for PBL purposes
+    public ArrayList<String> getDelimitersList(ArrayList<String> tokens){
         ArrayList<String> delims = new ArrayList<String>(); // store delimiters in tokens
         for(String token: tokens){
             if(token.equals(this.openDel) || token.equals(this.closeDel)){ // check if delimeter
