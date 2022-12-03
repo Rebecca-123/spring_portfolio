@@ -19,6 +19,7 @@ public class Calculator {
     private ArrayList<String> tokens;
     private ArrayList<String> reverse_polish;
     private Double result = 0.0;
+    private String error = "";
 
     // Helper definition for supported operators
     private final Map<String, Integer> OPERATORS = new HashMap<>();
@@ -149,7 +150,12 @@ public class Calculator {
                     tokenStack.push(token);
                     break;
                 default:    // Default should be a number, there could be test here
-                    this.reverse_polish.add(token);
+                    try {
+                        Double.parseDouble(token);
+                        this.reverse_polish.add(token);
+                    } catch (NumberFormatException nfe) {
+                        error += nfe;
+                    }
             }
         }
         // Empty remaining tokens
