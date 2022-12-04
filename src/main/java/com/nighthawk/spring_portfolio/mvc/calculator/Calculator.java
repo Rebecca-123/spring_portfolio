@@ -82,9 +82,9 @@ public class Calculator {
 
         int start = 0;  // term split starting index
         StringBuilder multiCharTerm = new StringBuilder();    // term holder
-        for (int i = 0; i < this.expression.length(); i++) {
+        for (int i = 0; i < this.expression.length(); i++){
             Character c = this.expression.charAt(i);
-            if ( isOperator(c.toString() ) || isSeparator(c.toString())  ) {
+            if ( isOperator(c.toString()) || isSeparator(c.toString())) {
                 // 1st check for working term and add if it exists
                 if (multiCharTerm.length() > 0) {
                     tokens.add(this.expression.substring(start, i));
@@ -96,12 +96,49 @@ public class Calculator {
                 // Get ready for next term
                 start = i + 1;
                 multiCharTerm = new StringBuilder();
+            // check for SQRT
             } else {
-                // multi character terms: numbers, functions, perhaps non-supported elements
-                // Add next character to working term
-                multiCharTerm.append(c);
-            }
+                if(i + 3 <= this.expression.length()-1 && this.expression.substring(i, i+4).equals("SQRT") ){
+                        // SQRT num
+                        if(this.expression.substring(i+4, i+5).equals(" ")){
+                            String startFromNum = this.expression.substring(i+5, this.expression.length());
+                            if(startFromNum.indexOf(" ") > 0){ // determine if there a space after num
+                                int end = startFromNum.indexOf(" ");
+                                String sub = this.expression.substring(0, end); // get expression SQRT num
+                                double rt = Double.parseDouble(sub.substring(5, sub.length()));
+                                tokens.add(String.valueOf(Math.pow(rt, 0.5))); 
+                                // adjust by SQRT num
+                                i += sub.length(); 
+                                start += sub.length();   
+                            }
+                            else{ // SQRT num is end of expression
+                                double rt = Double.parseDouble(startFromNum);
+                                tokens.add(String.valueOf(Math.pow(rt, 0.5)));
+                                // adjust by length of num + SQRT + space
+                                i += startFromNum.length() + 5; 
+                                start += startFromNum.length() + 5;
+                            }  
+                        } else { // SQRT(num)
+                            // find next closing parenthesis
+                            String startFromRt = this.expression.substring(i, this.expression.length());
+                            int end = startFromRt.indexOf(")");
 
+                            // cut off everything after number
+                            String sub = startFromRt.substring(0, end+1);
+                            double rt = Double.parseDouble(sub.substring(5, sub.length()-1));
+
+                            // calculate and add result
+                            tokens.add(String.valueOf(Math.pow(rt, 0.5)));
+                            i += sub.length();
+                            start += sub.length();
+                        }           
+                }
+                else {
+                    // multi character terms: numbers, functions, perhaps non-supported elements
+                    // Add next character to working term
+                    multiCharTerm.append(c);
+                }    
+            }
         }
         // Add last term
         if (multiCharTerm.length() > 0) {
@@ -192,6 +229,7 @@ public class Calculator {
                             result = num1 + num2;
                             break;
                         case "-":
+                            // num1 is number on left side of expression (pushed on to the stack later, so it is at the top)
                             result = num2 - num1;
                             break;
                         case "*":
@@ -232,7 +270,7 @@ public class Calculator {
         System.out.println("Parenthesis Delimiters: " + test.getDelimitersList(this.tokens));
         if(test.isBalanced(test.getDelimitersList(this.tokens))){
             if(this.error.trim().length() > 0){
-                return("Original expression: " + this.expression + ", Error: Unexpected characters");
+                return("Original expression: " + this.expression + "\n" + "Tokenized expression: " + this.tokens.toString() + "\nError: Unexpected characters");
             }
             else{              
                 return ("Original expression: " + this.expression + "\n" +
@@ -290,7 +328,7 @@ public class Calculator {
 
         System.out.println();
 
-        Calculator exponentMath = new Calculator("(5 + 3) ^ 2");
+        Calculator exponentMath = new Calculator("(5 + 3) ^ SQRT(4)");
         System.out.println("Exponent Math\n" + exponentMath);
 
         System.out.println();
@@ -302,6 +340,12 @@ public class Calculator {
 
         Calculator unexpectedChar = new Calculator("2a + 4");
         System.out.println("Unexpected Characters\n" + unexpectedChar);
+
+        System.out.println();
+
+        // testing both SQRT(num) and SQRT num
+        Calculator squareRt = new Calculator("SQRT(49) + 5 - 9 * SQRT 10");
+        System.out.println("Square Root\n" + squareRt);
 
     }
 }
