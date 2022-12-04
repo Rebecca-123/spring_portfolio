@@ -105,15 +105,29 @@ public class Calculator {
                             if(startFromNum.indexOf(" ") > 0){ // determine if there a space after num
                                 int end = startFromNum.indexOf(" ");
                                 String sub = this.expression.substring(0, end); // get expression SQRT num
-                                double rt = Double.parseDouble(sub.substring(5, sub.length()));
-                                tokens.add(String.valueOf(Math.pow(rt, 0.5))); 
+                                try{
+                                    // in the case of only a Double
+                                    double rt = Double.parseDouble(sub.substring(5, sub.length()));
+                                    tokens.add(String.valueOf(Math.pow(rt, 0.5))); 
+                                }
+                                catch(Exception e){
+                                    // SQRT expression, must evaluate expression first
+                                    Calculator exp = new Calculator(sub.substring(5, sub.length()));
+                                    tokens.add(String.valueOf(Math.pow(exp.result, 0.5)));
+                                }
                                 // adjust by SQRT num
                                 i += sub.length(); 
                                 start += sub.length();   
                             }
                             else{ // SQRT num is end of expression
-                                double rt = Double.parseDouble(startFromNum);
-                                tokens.add(String.valueOf(Math.pow(rt, 0.5)));
+                                try{
+                                    double rt = Double.parseDouble(startFromNum);
+                                    tokens.add(String.valueOf(Math.pow(rt, 0.5)));
+                                }
+                                catch(Exception e){
+                                    Calculator exp = new Calculator(startFromNum);
+                                    tokens.add(String.valueOf(Math.pow(exp.result, 0.5)));
+                                }
                                 // adjust by length of num + SQRT + space
                                 i += startFromNum.length() + 5; 
                                 start += startFromNum.length() + 5;
@@ -125,7 +139,8 @@ public class Calculator {
 
                             // cut off everything after number
                             String sub = startFromRt.substring(0, end+1);
-                            double rt = Double.parseDouble(sub.substring(5, sub.length()-1));
+                            Calculator exp = new Calculator(sub.substring(5, sub.length()-1));
+                            double rt = exp.result;
 
                             // calculate and add result
                             tokens.add(String.valueOf(Math.pow(rt, 0.5)));
@@ -267,8 +282,8 @@ public class Calculator {
     public String toString() {
         // check for balanced parentheses
         Delimiters test = new Delimiters("(", ")");
-        System.out.println("Parenthesis Delimiters: " + test.getDelimitersList(this.tokens));
         if(test.isBalanced(test.getDelimitersList(this.tokens))){
+            // Other error with tokens
             if(this.error.trim().length() > 0){
                 return("Original expression: " + this.expression + "\n" + "Tokenized expression: " + this.tokens.toString() + "\nError: Unexpected characters");
             }
@@ -280,7 +295,7 @@ public class Calculator {
             }    
         }
         else{
-            return("Original expression: " + this.expression + ", Error: parentheses are unbalanced.");
+            return("Original expression: " + this.expression + ", Error: Unbalanced parentheses." + "\nParenthesis Delimiters: " + test.getDelimitersList(this.tokens));
         }
     }
 
@@ -328,11 +343,6 @@ public class Calculator {
 
         System.out.println();
 
-        Calculator exponentMath = new Calculator("(5 + 3) ^ SQRT(4)");
-        System.out.println("Exponent Math\n" + exponentMath);
-
-        System.out.println();
-
         Calculator unbalanced = new Calculator("(5 + 3) ^ 2)");
         System.out.println("Unbalanced Parentheses\n" + unbalanced);
 
@@ -344,8 +354,20 @@ public class Calculator {
         System.out.println();
 
         // testing both SQRT(num) and SQRT num
-        Calculator squareRt = new Calculator("SQRT(49) + 5 - 9 * SQRT 10");
+        Calculator squareRt = new Calculator("SQRT(49) + 5 - 9 * SQRT 5*2");
+        System.out.println("Expected Answer: " + -16.46);
         System.out.println("Square Root\n" + squareRt);
 
+        System.out.println();
+
+        Calculator exponentMath = new Calculator("(5 + 3) ^ SQRT(9*21-10^2)");
+        System.out.println("Expected Answer: " + 330928292);
+        System.out.println("Exponent Math\n" + exponentMath);
+
+        System.out.println();
+
+        Calculator superComplicatedExpression = new Calculator("(96-6) % 10 ^ SQRT(72-56) - SQRT(36) + SQRT 52+4*3-27");
+        System.out.println("Expected Answer: " + 0.08);
+        System.out.println("Complex Expression\n" + superComplicatedExpression);
     }
 }
