@@ -1,8 +1,12 @@
 package com.nighthawk.spring_portfolio.mvc.calculator;
 
+import org.apache.tomcat.util.http.parser.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,4 +28,13 @@ public class CalculatorApiController {
 
       return ResponseEntity.ok(json);  // JSON response, see ExceptionHandlerAdvice for throws
     }
+
+    @PostMapping(value = "/expression")
+    public ResponseEntity<Object> calculate(@RequestBody final String expression) {
+      // extract term from RequestEntity
+      Calculator myCalc = new Calculator(expression);
+
+      // return resulting list and status, error checking should be added
+      return new ResponseEntity<>(myCalc.apiToString(), HttpStatus.OK);
+  }
 }
