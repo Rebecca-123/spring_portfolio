@@ -1,6 +1,5 @@
 package com.nighthawk.spring_portfolio.mvc.calculator;
 
-import org.apache.tomcat.util.http.parser.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
