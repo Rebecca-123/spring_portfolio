@@ -1,8 +1,11 @@
 package com.nighthawk.spring_portfolio.mvc.sentences;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,4 +27,13 @@ public class SentencesApiController {
 
       return ResponseEntity.ok(json);  // JSON response, see ExceptionHandlerAdvice for throws
     }
+
+    @PostMapping(value = "/calculate")
+    public ResponseEntity<Object> calculate(@RequestBody final String sentence) {
+      // extract term from RequestEntity
+      Sentences sen = new Sentences(sentence);
+
+      // return resulting list and status, error checking should be added
+      return new ResponseEntity<>(sen.apiToString(), HttpStatus.OK);
+  }
 }
