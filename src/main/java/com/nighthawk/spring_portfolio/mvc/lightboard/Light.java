@@ -57,6 +57,7 @@ public class Light {
 
     public String getRGB() {
         return ( "#" +
+        // %02X print at least two digits
          String.format("%02X", this.red) +
          String.format("%02X", this.green) + 
          String.format("%02X", this.blue) 
