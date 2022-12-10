@@ -71,8 +71,8 @@ public class LightBoard {
     /* Output is intended for Terminal, draws color palette */
     public String toColorPalette() {
         // block sizes
-        final int ROWS = 10;
-        final int COLS = 5;
+        final int ROWS = 2;
+        final int COLS = 2;
 
         // Build large string for entire color palette
         String outString = "";
@@ -116,12 +116,62 @@ public class LightBoard {
         outString += "\033[m";
 		return outString;
     }
+
+    /* Output is intended for Terminal, draws color palette */
+    public String toEffectColorPalette() {
+        // block sizes
+        final int ROWS = 2;
+        final int COLS = 2;
+
+        // Build large string for entire color palette
+        String outString = "";
+        // find each row
+        for (int row = 0; row < lights.length; row++) {
+            // repeat each row for block size
+            for (int i = 0; i < ROWS; i++) {
+                // find each column
+                for (int col = 0; col < lights[row].length; col++) {
+                    // repeat each column for block size
+                    for (int j = 0; j < COLS; j++) {
+                        // print single character, except at midpoint print color code
+                        String c = (i == (int) (ROWS / 2) && j == (int) (COLS / 2) ) 
+                            ? lights[row][col].getRGB()
+                            : (j == (int) (COLS / 2))  // nested ternary
+                            ? " ".repeat(lights[row][col].getRGB().length())
+                            : " ";
+
+                        outString += 
+                        // reset
+                        "\033[m" +
+                        
+                        // color
+                        "\033[38;2;" + 
+                        lights[row][col].getRed() + ";" +
+                        lights[row][col].getGreen() + ";" +
+                        lights[row][col].getBlue() + ";" +
+                        lights[row][col].getEffect() + "m" +
+
+                        // color code or blank character
+                        c +
+
+                        // reset
+                        "\033[m";
+                    }
+                }
+                outString += "\n";
+            }
+        }
+        // remove last comma, newline, add square bracket, reset color
+        outString += "\033[m";
+		return outString;
+    }
     
     static public void main(String[] args) {
         // create and display LightBoard
-        LightBoard lightBoard = new LightBoard(10, 10);
+        LightBoard lightBoard = new LightBoard(4, 4);
         System.out.println(lightBoard);  // use toString() method
         System.out.println(lightBoard.toTerminal());
         System.out.println(lightBoard.toColorPalette());
+        System.out.println(lightBoard.toEffectColorPalette());
     }
 }

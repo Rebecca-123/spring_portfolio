@@ -48,7 +48,22 @@ public class Light {
         this.red = (short) (Math.random()*(maxColor+1));
         this.green = (short) (Math.random()*(maxColor+1));
         this.blue = (short) (Math.random()*(maxColor+1));
-        this.effect = (short) (Math.random()*(effect+1));
+        this.onOff();
+        if(!this.on){
+            this.effect = 0;
+        }
+        else{
+            this.effect = (short) (Math.random()*(effect+1));
+        }    
+    }
+
+    public void onOff(){
+        if(((int)Math.random() * 100) <= 39){
+            this.on = true;
+        }
+        else{
+            this.on = false;
+        }
     }
 
     public String getEffectTitle() {
